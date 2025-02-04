@@ -10,7 +10,6 @@ export const receiveWebhook = async (req: Request, res: Response) => {
         const processedData = processFormData(formData);
         
         await saveToSpreadsheet(processedData);
-
         res.status(200).send('Data received succesfully');
     } catch (error) {
         console.error('Webhook error:', error);

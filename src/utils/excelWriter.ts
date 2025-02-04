@@ -3,31 +3,35 @@ import { FormResponse } from '../services/formService.js';
 
 const SPREADSHEET_PATH = './spreadsheets/respostas.xlsx';
 
-export const saveToSpreadsheet = async (data: FormResponse[]) => {
-    const workbook = new ExcelJS.Workbook();
-    console.log({data});
-    
+export const saveToSpreadsheet = async (processedData: FormResponse) => {
+    let worksheet;
+    const workbook = new ExcelJS.Workbook();    
 
     try {
         await workbook.xlsx.readFile(SPREADSHEET_PATH);
+        worksheet = workbook.getWorksheet('respostas');
     } catch (error) {
-        //create new spreadsheet if it doesn't exist
-        const worksheet = workbook.addWorksheet('respostas');
+        console.log("Arquivo não encontrado. Criando novo...");
+    }
+    
+    if(!worksheet) {
+        worksheet = workbook.addWorksheet('respostas');
         worksheet.columns = [
-            {header: 'Data', key: 'timestamp'},
-            {header: 'ID Pergunta', key: 'questionId'},
-            {header: 'Pergunta', key: 'questionText'},
-            {header: 'Resposta', key: 'answer'}
+            {header: 'Data Abertura', key: 'date'},
+            {header: 'ID Ticket', key: 'idTicket'},
+            {header: 'Filial', key: 'branch'},
+            {header: 'Perguntas', key: 'questions'},
+            {header: 'Respostas', key: 'answer'}
         ];
     }
 
-    const worksheet = workbook.getWorksheet('respostas');
-
-    data.forEach(response => {
-        worksheet?.addRow({
-            timestamp: response.timestamp,
-            questionText: response.pergunta,
-            answer: response.resposta,
+    processedData.perguntas.forEach((question, index) => {
+        worksheet.addRow({
+            date: processedData.data,
+            idTicket: processedData.ticketID,
+            branch: processedData.filial,
+            questions: question,
+            answer: processedData.respostas[index],
         });
     });
 
