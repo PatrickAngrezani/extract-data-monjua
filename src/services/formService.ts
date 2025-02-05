@@ -45,6 +45,7 @@ const questionScoreTable = {
   "Somente o gerente possui acesso ao cofre?": {
     Sim: 2,
     Não: 0,
+    "N/A": 0,
   },
   "Filial está digitalizando os depósitos?": {
     Sim: 0,
@@ -109,7 +110,7 @@ const questionScoreTable = {
     "Até 0.9 porcento do estoque": 5,
     "Acima de 09 porcento do estoque": 0,
   },
-  "Indice de Inventário": {
+  "Índice de inventário": {
     "Até 0.200 porcento": 15,
     "Acima de 0.249 porcento": 0,
     "Entre 0.201 porcento e 0.249 porcento": 7.5,
@@ -164,7 +165,16 @@ function captureQuestions(data: any): {} {
     )
     .map(([pergunta, resposta]) => ({ pergunta, resposta }));
 
-  console.log({ questions });
-
   return questions;
+}
+
+export function calculateScore(question: string, answer: string): {} {
+  if (
+    questionScoreTable[question] &&
+    questionScoreTable[question][answer] !== undefined
+  ) {
+    return questionScoreTable[question][answer];
+  }
+
+  return 0;
 }
