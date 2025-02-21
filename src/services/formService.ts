@@ -1,5 +1,5 @@
 export interface FormResponse {
-  data: Date;
+  data: string;
   ticketID: string;
   filial: string;
   perguntas: string[];
@@ -110,7 +110,7 @@ const questionScoreTable = {
     "Até 0.9 porcento do estoque": 5,
     "Acima de 09 porcento do estoque": 0,
   },
-  "Índice de inventário": {
+  "Índice de Inventário:": {
     "Até 0.200 porcento": 15,
     "Acima de 0.249 porcento": 0,
     "Entre 0.201 porcento e 0.249 porcento": 7.5,
@@ -118,14 +118,14 @@ const questionScoreTable = {
 };
 
 export const processFormData = (rawData): FormResponse => {
-  let formattedDate: Date;
+  let formattedDate: string;
   let ticketID: string;
   let branchName;
   let questions;
 
   for (const data of rawData) {
-    const creationDate = new Date(data.payload.createdTime);
-    formattedDate = new Date(creationDate.toLocaleDateString("pt-BR"));
+    const creationDate = String(new Date(data.payload.createdTime));
+    formattedDate = new Date(creationDate).toLocaleDateString("pt-BR");
 
     ticketID = data.payload.ticketNumber;
 
@@ -158,17 +158,27 @@ function captureQuestions(data: any): {} {
     .filter(
       ([question, response]) =>
         response !== null &&
-        question !== "Nome para contato" &&
-        question !== "Selecione sua filial" &&
-        question !== "Teste" &&
-        question !== "Serviço"
+        ![
+          "Nome para contato",
+          "Selecione sua filial",
+          "Teste",
+          "Serviço",
+        ].includes(question)
     )
-    .map(([pergunta, resposta]) => ({ pergunta, resposta }));
+    .map(([pergunta, resposta]) => {
+      return { pergunta, resposta };
+    });
 
   return questions;
 }
 
 export function calculateScore(question: string, answer: string): {} {
+  if (question === "Índice de Inventário:") {
+    const resultado = calculateInventario(String(answer));
+    questionScoreTable[question][resultado];
+
+    return questionScoreTable[question][resultado];
+  }
   if (
     questionScoreTable[question] &&
     questionScoreTable[question][answer] !== undefined
@@ -177,4 +187,16 @@ export function calculateScore(question: string, answer: string): {} {
   }
 
   return 0;
+}
+
+export function calculateInventario(resposta: string): string {
+  const valor = Number(resposta.replace(",", "."));
+
+  if (valor >= 0 && valor <= 0.2) {
+    return "Até 0.200 porcento";
+  } else if (valor > 0.2 && valor <= 0.249) {
+    return "Entre 0.201 porcento e 0.249 porcento";
+  } else if (valor > 0.249) {
+    return "Acima de 0.249 porcento";
+  }
 }
