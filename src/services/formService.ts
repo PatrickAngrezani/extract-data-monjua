@@ -6,7 +6,9 @@ export interface FormResponse {
   respostas: string[];
 }
 
-const questionScoreTable = {
+export let totalScore: number = 0;
+
+const questionScoreTable: Record<string, Record<string, number>> = {
   "Confissões de dívida armazenados em local correto?": {
     Sim: 5,
     Não: 0,
@@ -172,21 +174,28 @@ function captureQuestions(data: any): {} {
   return questions;
 }
 
-export function calculateScore(question: string, answer: string): {} {
+export function calculateScore(question: string, answer: string): number {
   if (question === "Índice de Inventário:") {
     const resultado = calculateInventario(String(answer));
-    questionScoreTable[question][resultado];
+    const indPoints: number = Number(
+      questionScoreTable[question]?.[resultado] ?? 0
+    );
+    totalScore += indPoints;
 
     return questionScoreTable[question][resultado];
   }
+
   if (
     questionScoreTable[question] &&
     questionScoreTable[question][answer] !== undefined
   ) {
+    const points: number = Number(questionScoreTable[question][answer]);
+    totalScore += points;
+
     return questionScoreTable[question][answer];
   }
 
-  return 0;
+  return totalScore;
 }
 
 export function calculateInventario(resposta: string): string {

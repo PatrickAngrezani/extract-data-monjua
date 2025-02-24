@@ -1,5 +1,9 @@
 import ExcelJS from "exceljs";
-import { calculateScore, FormResponse } from "../services/formService.js";
+import {
+  calculateScore,
+  FormResponse,
+  totalScore,
+} from "../services/formService.js";
 
 const SPREADSHEET_PATH = "./spreadsheets/respostas.xlsx";
 
@@ -25,6 +29,7 @@ export const saveToSpreadsheet = async (processedData: FormResponse) => {
     { header: "Perguntas", key: "questions" },
     { header: "Respostas", key: "answer" },
     { header: "Pontuação", key: "score" },
+    { header: "Pontuação Total", key: "totalScore" },
   ];
 
   processedData.perguntas.forEach((question, index) => {
@@ -38,7 +43,18 @@ export const saveToSpreadsheet = async (processedData: FormResponse) => {
       questions: question,
       answer,
       score,
+      totalScore: "",
     });
+  });
+
+  worksheet.addRow({
+    date: "",
+    idTicket: "",
+    branch: processedData.filial,
+    questions: "Pontuação Final",
+    answer: "",
+    score: "",
+    totalScore: totalScore,
   });
 
   await workbook.xlsx.writeFile(SPREADSHEET_PATH);
