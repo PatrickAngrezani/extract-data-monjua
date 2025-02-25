@@ -80,8 +80,8 @@ const questionScoreTable: Record<string, Record<string, number>> = {
     Sim: 2,
     Não: 0,
   },
-  "O Código de Cultura está exposto": {
-    Sim: 2,
+  "O Código de Cultura está exposto?": {
+    Sim: 0,
     Não: 0,
   },
   "O quadro informativo da LGPD está exposto?": {
@@ -195,7 +195,7 @@ export function calculateScore(question: string, answer: string): number {
     return questionScoreTable[question][answer];
   }
 
-  return totalScore;
+  return 0;
 }
 
 export function calculateInventario(resposta: string): string {
