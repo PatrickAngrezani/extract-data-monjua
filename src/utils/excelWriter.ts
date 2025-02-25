@@ -2,6 +2,7 @@ import ExcelJS from "exceljs";
 import {
   calculateScore,
   FormResponse,
+  resetScore,
   totalScore,
 } from "../services/formService.js";
 
@@ -29,7 +30,6 @@ export const saveToSpreadsheet = async (processedData: FormResponse) => {
     { header: "Perguntas", key: "questions" },
     { header: "Respostas", key: "answer" },
     { header: "Pontuação", key: "score" },
-    { header: "Pontuação Total", key: "totalScore" },
   ];
 
   processedData.perguntas.forEach((question, index) => {
@@ -43,7 +43,6 @@ export const saveToSpreadsheet = async (processedData: FormResponse) => {
       questions: question,
       answer,
       score,
-      totalScore: "",
     });
   });
 
@@ -53,9 +52,22 @@ export const saveToSpreadsheet = async (processedData: FormResponse) => {
     branch: processedData.filial,
     questions: "Pontuação Final",
     answer: "",
-    score: "",
-    totalScore: totalScore,
+    score: totalScore,
   });
 
+  addBlankRow(worksheet);
+
   await workbook.xlsx.writeFile(SPREADSHEET_PATH);
+  resetScore();
 };
+
+function addBlankRow(worksheet) {
+  worksheet.addRow({
+    date: "",
+    idTicket: "",
+    branch: "",
+    questions: "",
+    answer: "",
+    score: "",
+  });
+}

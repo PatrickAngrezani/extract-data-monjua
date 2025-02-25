@@ -209,3 +209,7 @@ export function calculateInventario(resposta: string): string {
     return "Acima de 0.249 porcento";
   }
 }
+
+export function resetScore() {
+  totalScore = 0;
+}
