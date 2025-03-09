@@ -46,16 +46,16 @@ export const saveToSpreadsheet = async (processedData: FormResponse) => {
     });
   });
 
-  worksheet.addRow({
-    date: "",
-    idTicket: "",
-    branch: processedData.filial,
-    questions: "Pontuação Final",
-    answer: "",
-    score: totalScore,
-  });
+  // worksheet.addRow({
+  //   date: "",
+  //   idTicket: "",
+  //   branch: processedData.filial,
+  //   questions: "Pontuação Final",
+  //   answer: "",
+  //   score: totalScore,
+  // });
 
-  addBlankRow(worksheet);
+  // addBlankRow(worksheet);
 
   await workbook.xlsx.writeFile(SPREADSHEET_PATH);
   resetScore();
