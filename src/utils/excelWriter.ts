@@ -38,7 +38,7 @@ export const saveToSpreadsheet = async (processedData: FormResponse) => {
 
     worksheet.addRow({
       date: processedData.data,
-      idTicket: processedData.ticketID,
+      idTicket: processedData.idTicket,
       branch: processedData.filial,
       questions: question,
       answer,

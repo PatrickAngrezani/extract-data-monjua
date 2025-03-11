@@ -1,6 +1,6 @@
 export interface FormResponse {
   data: string;
-  ticketID: string;
+  idTicket: string;
   filial: string;
   perguntas: string[];
   respostas: string[];
@@ -121,7 +121,7 @@ const questionScoreTable: Record<string, Record<string, number>> = {
 
 export const processFormData = (rawData): FormResponse => {
   let formattedDate: string;
-  let ticketID: string;
+  let idTicket: string;
   let branchName;
   let questions;
 
@@ -129,7 +129,7 @@ export const processFormData = (rawData): FormResponse => {
     const creationDate = String(new Date(data.payload.createdTime));
     formattedDate = new Date(creationDate).toLocaleDateString("pt-BR");
 
-    ticketID = data.payload.ticketNumber;
+    idTicket = data.payload.ticketNumber;
 
     branchName = captureBranchName(data);
     questions = captureQuestions(data);
@@ -139,7 +139,7 @@ export const processFormData = (rawData): FormResponse => {
 
   return {
     data: formattedDate,
-    ticketID,
+    idTicket,
     filial: branchName,
     perguntas: questions.map((q) => q.pergunta),
     respostas: questions.map((q) => q.resposta),
