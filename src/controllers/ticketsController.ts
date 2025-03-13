@@ -3,6 +3,7 @@ import { getAccessToken, refreshToken } from "../services/authService.js";
 import { fileURLToPath } from "url";
 import { dirname } from "path";
 import * as dotenv from "dotenv";
+import { insertQuestionsDB } from "../database/insertQuestions.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -12,7 +13,7 @@ dotenv.config({ path: `${__dirname}/../../.env` });
 const departmentId = process.env.DEPARTMENT_ID;
 
 let lastTicketReviewed: number = 0;
-let complianceTicketsArray: Record<string, any>[] = [];
+let complianceTicketsArray = [];
 
 export const retrieveTickets = async () => {
   try {
@@ -48,31 +49,43 @@ export const retrieveTickets = async () => {
               complianceTickets.data.customFields["Serviço"] ===
               "Auditoria Compliance"
             ) {
+              const questions = captureQuestions(complianceTickets);
+              
               // filtra questionário
               // monta array de pares valores [key, value]
-              const filteredData = Object.entries(
-                complianceTickets.data.customFields
-              )
-                .filter(
-                  ([question, response]) =>
-                    response !== null &&
-                    ![
-                      "Nome para contato",
-                      "Selecione sua filial",
-                      "Teste",
-                      "Serviço",
-                    ].includes(question)
-                )
-                // transforma o array em objeto | acc obj vazio inicialmente {}
-                .reduce((acc, [key, value]) => {
-                  acc[key] = value;
-                  return acc;
-                }, {} as Record<string, any>);
+              // const filteredData = Object.entries(
+              //   complianceTickets.data.customFields
+              // )
+              //   .filter(
+              //     ([question, response]) =>
+              //       response !== null &&
+              //       ![
+              //         "Nome para contato",
+              //         "Selecione sua filial",
+              //         "Teste",
+              //         "Serviço",
+              //       ].includes(question)
+              //   )
+              //   // transforma o array em objeto | acc obj vazio inicialmente {}
+              //   .reduce((acc, [key, value]) => {
+              //     acc[key] = value;
+              //     return acc;
+              //   }, {} as Record<string, any>);
+
+              const creationDate = String(
+                new Date(complianceTickets.data.createdTime)
+              );
+              const formattedDate = new Date(creationDate).toLocaleDateString(
+                "pt-BR"
+              );
 
               // adiciona os dados filtrados ao array de tickets processados
               complianceTicketsArray.push({
-                ticketNumber: Number(complianceTickets.data["ticketNumber"]),
-                data: filteredData,
+                idTicket: Number(complianceTickets.data["ticketNumber"]),
+                filial: captureBranchName(complianceTickets),
+                formattedDate,
+                perguntas: questions.map((q) => q.pergunta),
+                respostas: questions.map((q) => q.resposta),
               });
 
               // atualiza lastTicketReviewed para o maior ticketNumber encontrado
@@ -90,7 +103,7 @@ export const retrieveTickets = async () => {
         })
     );
 
-    return complianceTicketsArray;
+    return insertQuestionsDB(complianceTicketsArray);
   } catch (error: any) {
     console.error("Error retrieving tickets:", error.response?.data);
 
@@ -102,5 +115,33 @@ export const retrieveTickets = async () => {
     throw error;
   }
 };
+
+function captureBranchName(complianceTickets: any): string {
+  const branchName =
+    Object.entries(complianceTickets.data.customFields).find(
+      ([question]) => question === "Selecione sua filial"
+    )[1] || null;
+
+  return String(branchName);
+}
+
+function captureQuestions(complianceTickets: any) {
+  const questions = Object.entries(complianceTickets.data.customFields)
+    .filter(
+      ([question, response]) =>
+        response !== null &&
+        ![
+          "Nome para contato",
+          "Selecione sua filial",
+          "Teste",
+          "Serviço",
+        ].includes(question)
+    )
+    .map(([pergunta, resposta]) => {
+      return { pergunta, resposta };
+    });
+
+  return questions;
+}
 
 retrieveTickets();
