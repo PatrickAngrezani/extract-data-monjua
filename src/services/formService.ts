@@ -1,5 +1,5 @@
 export interface FormResponse {
-  data: string;
+  formattedDate: string;
   idTicket: string;
   filial: string;
   perguntas: string[];
@@ -8,7 +8,7 @@ export interface FormResponse {
 
 export let totalScore: number = 0;
 
-const questionScoreTable: Record<string, Record<string, number>> = {
+export const questionScoreTable: Record<string, Record<string, number>> = {
   "Confissões de dívida armazenados em local correto?": {
     Sim: 5,
     Não: 0,
@@ -138,7 +138,7 @@ export const processFormData = (rawData): FormResponse => {
   questions.sort((a, b) => a.pergunta.localeCompare(b.pergunta));
 
   return {
-    data: formattedDate,
+    formattedDate,
     idTicket,
     filial: branchName,
     perguntas: questions.map((q) => q.pergunta),

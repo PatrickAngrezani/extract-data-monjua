@@ -37,7 +37,7 @@ export const saveToSpreadsheet = async (processedData: FormResponse) => {
     const score = calculateScore(question, answer);
 
     worksheet.addRow({
-      date: processedData.data,
+      date: processedData.formattedDate,
       idTicket: processedData.idTicket,
       branch: processedData.filial,
       questions: question,
