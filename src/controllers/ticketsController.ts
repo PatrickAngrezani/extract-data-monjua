@@ -131,7 +131,7 @@ function captureQuestions(complianceTickets: any) {
   return questions;
 }
 
-cron.schedule("0 11 * * *", async () => {
+cron.schedule("0 12 * * *", async () => {
   console.log("Executando a rotina agendada para busca de tickets.");
   await retrieveTickets();
   console.log({ lastTicketReviewed });
