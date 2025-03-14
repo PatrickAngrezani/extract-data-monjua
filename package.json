@@ -20,9 +20,7 @@
     "knex": "^3.1.0",
     "mssql": "^11.0.1",
     "node-cron": "^3.0.3",
-    "nodemon": "^3.1.9",
-    "oracle": "^0.4.1",
-    "oracledb": "^6.8.0"
+    "nodemon": "^3.1.9"
   },
   "devDependencies": {
     "@types/node": "^22.12.0",
