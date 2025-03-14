@@ -1,8 +1,10 @@
 import axios from "axios";
-import { getAccessToken, refreshToken } from "../services/authService.js";
 import { fileURLToPath } from "url";
 import { dirname } from "path";
 import * as dotenv from "dotenv";
+import cron from "node-cron";
+
+import { getAccessToken, refreshToken } from "../services/authService.js";
 import { insertQuestionsDB } from "../database/insertQuestions.js";
 
 const __filename = fileURLToPath(import.meta.url);
@@ -12,7 +14,8 @@ dotenv.config({ path: `${__dirname}/../../.env` });
 
 const departmentId = process.env.DEPARTMENT_ID;
 
-let lastTicketReviewed: number = 0;
+// to do: Atualizar pra buscar em banco
+export let lastTicketReviewed: number = 39988;
 let complianceTicketsArray = [];
 
 export const retrieveTickets = async () => {
@@ -30,7 +33,9 @@ export const retrieveTickets = async () => {
     await Promise.all(
       response.data.data
         .filter(
-          (item: { departmentId: string }) => item.departmentId == departmentId
+          (item: { departmentId: string; ticketNumber: string }) =>
+            item.departmentId == departmentId &&
+            Number(item.ticketNumber) > lastTicketReviewed
         ) // filtra departamento correto
         .map(async (item: { id: string }) => {
           try {
@@ -50,27 +55,6 @@ export const retrieveTickets = async () => {
               "Auditoria Compliance"
             ) {
               const questions = captureQuestions(complianceTickets);
-              
-              // filtra questionário
-              // monta array de pares valores [key, value]
-              // const filteredData = Object.entries(
-              //   complianceTickets.data.customFields
-              // )
-              //   .filter(
-              //     ([question, response]) =>
-              //       response !== null &&
-              //       ![
-              //         "Nome para contato",
-              //         "Selecione sua filial",
-              //         "Teste",
-              //         "Serviço",
-              //       ].includes(question)
-              //   )
-              //   // transforma o array em objeto | acc obj vazio inicialmente {}
-              //   .reduce((acc, [key, value]) => {
-              //     acc[key] = value;
-              //     return acc;
-              //   }, {} as Record<string, any>);
 
               const creationDate = String(
                 new Date(complianceTickets.data.createdTime)
@@ -93,6 +77,11 @@ export const retrieveTickets = async () => {
                 lastTicketReviewed,
                 Number(complianceTickets.data["ticketNumber"])
               );
+
+              return insertQuestionsDB(
+                complianceTicketsArray,
+                lastTicketReviewed
+              );
             }
           } catch (error) {
             console.error(
@@ -102,8 +91,6 @@ export const retrieveTickets = async () => {
           }
         })
     );
-
-    return insertQuestionsDB(complianceTicketsArray);
   } catch (error: any) {
     console.error("Error retrieving tickets:", error.response?.data);
 
@@ -144,4 +131,14 @@ function captureQuestions(complianceTickets: any) {
   return questions;
 }
 
-retrieveTickets();
+cron.schedule("0 11 * * *", async () => {
+  console.log("Executando a rotina agendada para busca de tickets.");
+  await retrieveTickets();
+  console.log({ lastTicketReviewed });
+});
+
+console.log(
+  "Primeira busca de tickets realizada... Aguardando nova busca agendada."
+);
+await retrieveTickets();
+console.log({ lastTicketReviewed });
