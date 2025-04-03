@@ -6,6 +6,7 @@ import cron from "node-cron";
 
 import { getAccessToken, refreshToken } from "../services/authService.js";
 import { insertQuestionsDB } from "../database/insertQuestions.js";
+import knexDW from "../database/knexDW.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -15,7 +16,11 @@ dotenv.config({ path: `${__dirname}/../../.env` });
 const departmentId = process.env.DEPARTMENT_ID;
 
 // to do: Atualizar pra buscar em banco
-export let lastTicketReviewed: number = 39988;
+const queryRetrieveLastTicket = await knexDW("dbo.fPontuacaoAuditoria")
+  .orderBy("idTicket", "desc")
+  .first();
+let lastTicketReviewed = queryRetrieveLastTicket.idTicket;
+
 let complianceTicketsArray = [];
 
 export const retrieveTickets = async () => {
@@ -131,7 +136,7 @@ function captureQuestions(complianceTickets: any) {
   return questions;
 }
 
-cron.schedule("0 12 * * *", async () => {
+cron.schedule("0 23 * * *", async () => {
   console.log("Executando a rotina agendada para busca de tickets.");
   await retrieveTickets();
   console.log({ lastTicketReviewed });
