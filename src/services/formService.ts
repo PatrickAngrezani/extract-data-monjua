@@ -36,13 +36,11 @@ export const questionScoreTable: Record<string, Record<string, number>> = {
     "Filial possui reservas dentro do prazo e de acordo com a política": 5,
     "Filial não realiza o controle das reservas": 0,
   },
-  "A filial utiliza o cofre?": {
-    Sim: 2,
-    Nâo: 0,
-  },
-  "O cofre está localizado em local correto?": {
-    Sim: 2,
+  "A filial utiliza cofre e esta em local correto?": {
+    "Sim e esta em local correto": 2,
+    "Sim, porém não está em local correto": 1,
     Não: 0,
+    "N/A": 0,
   },
   "Somente o gerente possui acesso ao cofre?": {
     Sim: 2,
@@ -65,7 +63,14 @@ export const questionScoreTable: Record<string, Record<string, number>> = {
     Sim: 2,
     Não: 0,
   },
-  "O alvará está exposto e dentro da validade?": {
+  "Alvará dos Bombeiros exposto e dentro da validade?": {
+    "Alvará exposto e vigente": 2,
+    "Alvará exposto mas vencido": 1,
+    "Alvará vigente mas não está exposto": 1,
+    "Em desacordo com o processo de regularização em andamento com o jurídico": 2,
+    "Filial sem alvará": 0,
+  },
+  "O alvará de Funcionamento exposto e valido?": {
     "Alvará exposto e vigente": 2,
     "Alvará exposto mas vencido": 1,
     "Alvará vigente mas não está exposto": 1,
@@ -100,9 +105,10 @@ export const questionScoreTable: Record<string, Record<string, number>> = {
     Sim: 1,
     Não: 0,
   },
-  "Placas Seguro Prestamista exposto para clientes?": {
+  "Informativos Seguro Prestamista exposto?": {
     Sim: 0,
     Não: 0,
+    "N/A": 0,
   },
   "Está tocando a Rádio Monjuá?": {
     Sim: 3,
