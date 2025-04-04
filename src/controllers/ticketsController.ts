@@ -74,7 +74,20 @@ export const retrieveTickets = async () => {
                 filial: captureBranchName(complianceTickets),
                 formattedDate,
                 perguntas: questions.map((q) => q.pergunta),
-                respostas: questions.map((q) => q.resposta),
+                respostas: questions.map((q) => {
+                  if (
+                    q.pergunta === "Índice de Inventário:" &&
+                    typeof q.resposta === "string" &&
+                    q.resposta.includes(".")
+                  ) {
+                    const x = q.resposta.replace(".", ",");
+                    console.log({ x });
+
+                    return x;
+                  } else {
+                    return q.resposta;
+                  }
+                }),
               });
 
               // atualiza lastTicketReviewed para o maior ticketNumber encontrado
