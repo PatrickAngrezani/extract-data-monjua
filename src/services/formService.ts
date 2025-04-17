@@ -111,7 +111,7 @@ export const questionScoreTable: Record<string, Record<string, number>> = {
     "N/A": 0,
   },
   "Está tocando a Rádio Monjuá?": {
-    Sim: 3,
+    Sim: 2,
     Não: 0,
   },
   "Quantidade de produtos sem etiqueta": {
