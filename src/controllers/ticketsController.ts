@@ -80,10 +80,7 @@ export const retrieveTickets = async () => {
                     typeof q.resposta === "string" &&
                     q.resposta.includes(".")
                   ) {
-                    const x = q.resposta.replace(".", ",");
-                    console.log({ x });
-
-                    return x;
+                    return q.resposta.replace(".", ",");
                   } else {
                     return q.resposta;
                   }
